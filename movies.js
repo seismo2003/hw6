@@ -41,32 +41,34 @@ window.addEventListener('DOMContentLoaded', async function(event) {
   // ⬇️ ⬇️ ⬇️
   let outputElement = document.querySelector(".movies")
   let watched_list = await db.collection('watched').get()
-  let watched_movies = watched_list.docs
-  let watchedID = []
-  for (let i=0; i < watched_movies.length; i++) {
-    watchedID.push(watched_movies[i].id)
-    console.log(watchedID)
-  }
+  //let watched_movies = watched_list.docs
+  //let watchedID = []
+  //for (let i=0; i < watched_movies.length; i++) {
+  //  watchedID.push(watched_movies[i].id)
+  //  console.log(watchedID)
+  //}
   for (let i=0; i < playing_now.length; i++) {
     let movie = playing_now[i]
-
-    if (watchedID.includes(`${movie.id}`)) {
-        outputElement.insertAdjacentHTML("beforeend", ` 
-          <div class="w-1/5 p-4 opacity-20 movie-${movie.id}">
-          <img src="https://image.tmdb.org/t/p/w500${movie.poster_path}" class="w-full">
-          <a href="#" class="watched-button block text-center text-white bg-green-500 mt-4 px-4 py-2 rounded">I've watched this!</a>
-        </div>
-      `)
-      }
-      else{
-        outputElement.insertAdjacentHTML("beforeend", ` 
-          <div class="w-1/5 p-4 movie-${movie.id}">
-          <img src="https://image.tmdb.org/t/p/w500${movie.poster_path}" class="w-full">
-          <a href="#" class="watched-button block text-center text-white bg-green-500 mt-4 px-4 py-2 rounded">I've watched this!</a>
-        </div>
-     `)
-    }
-    // })
+    let movieDoc = await db.collection('watched').doc(`${movie.id}`).get()
+          if (!movieDoc.exists) {
+              console.log('No such document!')
+              outputElement.insertAdjacentHTML("beforeend", ` 
+                <div class="w-1/5 p-4 movie-${movie.id}">
+                <img src="https://image.tmdb.org/t/p/w500${movie.poster_path}" class="w-full">
+                <a href="#" class="watched-button block text-center text-white bg-green-500 mt-4 px-4 py-2 rounded">I've watched this!</a>
+              </div>
+          `)
+          } else {
+              console.log('Document exists')
+              outputElement.insertAdjacentHTML("beforeend", ` 
+                <div class="w-1/5 p-4 opacity-20 movie-${movie.id}">
+                <img src="https://image.tmdb.org/t/p/w500${movie.poster_path}" class="w-full">
+                <a href="#" class="watched-button block text-center text-white bg-green-500 mt-4 px-4 py-2 rounded">I've watched this!</a>
+              </div>
+          `)
+          }
+    
+    
     document.querySelector(`.movie-${movie.id} .watched-button`).addEventListener('click', async function(event){
       event.preventDefault()
       document.querySelector(`.movie-${movie.id}`).classList.add('opacity-20')
