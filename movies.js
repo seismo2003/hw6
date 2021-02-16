@@ -71,13 +71,21 @@ window.addEventListener('DOMContentLoaded', async function(event) {
     
     document.querySelector(`.movie-${movie.id} .watched-button`).addEventListener('click', async function(event){
       event.preventDefault()
-      document.querySelector(`.movie-${movie.id}`).classList.add('opacity-20')
-      let movielistRef = await db.collection('watched').doc(`${movie.id}`).set({
-        text: movie.title
-      })
-      console.log(`new watched movie with ID ${movie.id} created`)
-    })
-  }
+      let temp_moviedoc = await db.collection('watched').doc(`${movie.id}`).get()
+      if (!temp_moviedoc.exists) {
+        document.querySelector(`.movie-${movie.id}`).classList.add('opacity-20')
+        let movielistRef = await db.collection('watched').doc(`${movie.id}`).set({
+          text: movie.title
+        })
+        console.log(`new watched movie with ID ${movie.id} created`)
+      } else {
+        
+        document.querySelector(`.movie-${movie.id}`).classList.remove('opacity-20')
+        await db.collection('watched').doc(`${movie.id}`).delete()
+        console.log(`watched movie with ID ${movie.id} removed`)
+      
+      }})
+    }
     
 
   // ⬆️ ⬆️ ⬆️ 
